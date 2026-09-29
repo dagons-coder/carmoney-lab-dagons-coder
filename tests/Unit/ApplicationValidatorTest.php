@@ -13,11 +13,13 @@ use PHPUnit\Framework\TestCase;
 final class ApplicationValidatorTest extends TestCase
 {
     private ApplicationValidator $validator;
+    private int $maxMileageKm;
 
     protected function setUp(): void
     {
         $rules = require __DIR__ . '/../../backend/config/rules.php';
 
+        $this->maxMileageKm = $rules['vehicle']['max_mileage_km'];
         $this->validator = new ApplicationValidator(
             $rules,
             new VinValidator($rules['vin']),
@@ -60,6 +62,22 @@ final class ApplicationValidatorTest extends TestCase
             self::fail('Ожидали ValidationException');
         } catch (ValidationException $exception) {
             self::assertArrayHasKey('requested_amount', $exception->errors());
+        }
+    }
+
+    public function testRejectsMissingMileage(): void
+    {
+        $payload = $this->validPayload();
+        unset($payload['mileage']);
+
+        try {
+            $this->validator->validate($payload);
+            self::fail('Ожидали ValidationException');
+        } catch (ValidationException $exception) {
+            self::assertSame(
+                ['mileage' => sprintf('Пробег от 0 до %d км', $this->maxMileageKm)],
+                $exception->errors(),
+            );
         }
     }
 

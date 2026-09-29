@@ -14,7 +14,11 @@ final class DecisionEngineTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->engine = new DecisionEngine(['approve_max' => 60.0, 'review_max' => 85.0]);
+        $this->engine = new DecisionEngine([
+            'approve_max' => 60.0,
+            'review_max' => 85.0,
+            'mileage_review_max_km' => 400000,
+        ]);
     }
 
     #[DataProvider('ltvValues')]
@@ -33,6 +37,22 @@ final class DecisionEngineTest extends TestCase
             'верхняя граница серой зоны' => [85.0, DecisionEngine::REVIEW],
             'сразу за верхней границей' => [85.01, DecisionEngine::REJECT],
             'высокий LTV' => [120.0, DecisionEngine::REJECT],
+        ];
+    }
+
+    #[DataProvider('mileageBoundaries')]
+    public function testDecidesByMileageWhenLtvIsGreen(int $mileage, string $expected): void
+    {
+        self::assertSame($expected, $this->engine->decide(45.0, $mileage));
+    }
+
+    /** @return array<string,array{int,string}> */
+    public static function mileageBoundaries(): array
+    {
+        return [
+            'пробег под порогом' => [399999, DecisionEngine::APPROVE],
+            'ровно на пороге' => [400000, DecisionEngine::APPROVE],
+            'сразу за порогом' => [400001, DecisionEngine::REVIEW],
         ];
     }
 }
