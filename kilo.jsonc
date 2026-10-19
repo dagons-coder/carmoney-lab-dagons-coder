@@ -8,6 +8,6 @@
   "permission": {
     "read": { "*": "allow", "*.env*": "deny" },
     "edit": { "*": "allow", "*.env*": "deny", "kilo.jsonc": "deny" },
-    "bash": { "*": "ask", "git *": "allow", "git push*": "ask", "make *": "allow", "*.env*": "deny", "*reset_db*": "deny" }
+    "bash": { "*": "ask", "git *": "allow", "git push*": "ask", "make *": "allow", "*.env*": "deny", "*reset_db*": "deny", "ast-index *": "allow" }
   }
 }
