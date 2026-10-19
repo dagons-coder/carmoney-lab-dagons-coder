@@ -1,3 +1,7 @@
 Расход токенов без ast-index: In 49,648 · Out 1,327 · Reason 2,378
 
 Расход токенов с ast-index: In 22,694 · Out 1,410 · Reason 1,449
+
+Расход токенов с ast-index и caveman: In 26,164 · Out 1,447 · Reason 460
+
+C ast-index и caveman ответ получается быстрее по времени
