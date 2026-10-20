@@ -28,12 +28,13 @@ final class AssessmentService
     public function assess(array $payload): array
     {
         $input = $this->validator->validate($payload);
+        $vehicleAge = $this->vehicleAge->inYears($input['year']);
 
         $ltv = $this->ltvCalculator->calculate($input['requested_amount'], $input['market_value']);
-        $decision = $this->decisionEngine->decide($ltv, $input['mileage']);
+        $decision = $this->decisionEngine->decide($vehicleAge, $ltv, $input['mileage']);
 
         return [
-            'vehicle_age' => $this->vehicleAge->inYears($input['year']),
+            'vehicle_age' => $vehicleAge,
             'ltv' => $ltv,
             'decision' => $decision,
             'approved_limit' => $decision === DecisionEngine::APPROVE ? $input['requested_amount'] : 0,

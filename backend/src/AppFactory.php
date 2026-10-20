@@ -35,7 +35,10 @@ final class AppFactory
             ),
             new LtvCalculator(),
             new DecisionEngine(
-                $rules['ltv'] + ['mileage_review_max_km' => $rules['vehicle']['mileage_review_max_km']],
+                $rules['ltv'] + [
+                    'mileage_review_max_km' => $rules['vehicle']['mileage_review_max_km'],
+                    'max_age_years' => $rules['vehicle']['max_age_years'],
+                ],
             ),
             new VehicleAge((int) date('Y')),
         );

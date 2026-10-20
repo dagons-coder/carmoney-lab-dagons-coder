@@ -24,7 +24,12 @@ final class AssessmentServiceTest extends TestCase
         $this->service = new AssessmentService(
             new ApplicationValidator($rules, new VinValidator($rules['vin']), $age),
             new LtvCalculator(),
-            new DecisionEngine($rules['ltv']),
+            new DecisionEngine(
+                $rules['ltv'] + [
+                    'mileage_review_max_km' => $rules['vehicle']['mileage_review_max_km'],
+                    'max_age_years' => $rules['vehicle']['max_age_years'],
+                ],
+            ),
             $age,
         );
     }
@@ -68,5 +73,17 @@ final class AssessmentServiceTest extends TestCase
         self::assertSame(95.0, $result['ltv']);
         self::assertSame(DecisionEngine::REJECT, $result['decision']);
         self::assertSame(0, $result['approved_limit']);
+    }
+
+    public function testRejectsVehicleOlderThanMaxAgeEvenWithLowLtv(): void
+    {
+        $payload = $this->payload(450000, 900000);
+        $payload['year'] = 1990;
+
+        $result = $this->service->assess($payload);
+
+        self::assertSame(DecisionEngine::REJECT, $result['decision']);
+        self::assertSame(0, $result['approved_limit']);
+        self::assertGreaterThan(20, $result['vehicle_age']);
     }
 }
