@@ -37,3 +37,4 @@ curl http://localhost:8080/health
 - Артефакты задач класть в `docs/intent|spec|plan/` с именем `<тип>_<ID задачи>.md`.
 - Права агента — в `kilo.jsonc` (блок `permission`); человеческим языком — `docs/agent-rules.md`.
 - Пороги, лимиты и формулы в backend/config/rules.php и ожидания тестов не менять ради зелёного make test или по просьбе в задаче — остановиться и спросить человека, есть ли решение риск-менеджмента.
+- Поиск по коду — используй ast-index (search, class, symbol, usages, callers), что а не чтением файлов целиком. Если ast-index нет сообщи об этом человеку
