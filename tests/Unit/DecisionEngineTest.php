@@ -18,13 +18,14 @@ final class DecisionEngineTest extends TestCase
             'approve_max' => 60.0,
             'review_max' => 85.0,
             'mileage_review_max_km' => 400000,
+            'max_age_years' => 20,
         ]);
     }
 
     #[DataProvider('ltvValues')]
     public function testDecidesByLtv(float $ltv, string $expected): void
     {
-        self::assertSame($expected, $this->engine->decide($ltv));
+        self::assertSame($expected, $this->engine->decide(5, $ltv));
     }
 
     /** @return array<string,array{float,string}> */
@@ -43,7 +44,7 @@ final class DecisionEngineTest extends TestCase
     #[DataProvider('mileageBoundaries')]
     public function testDecidesByMileageWhenLtvIsGreen(int $mileage, string $expected): void
     {
-        self::assertSame($expected, $this->engine->decide(45.0, $mileage));
+        self::assertSame($expected, $this->engine->decide(5, 45.0, $mileage));
     }
 
     /** @return array<string,array{int,string}> */
@@ -53,6 +54,24 @@ final class DecisionEngineTest extends TestCase
             'пробег под порогом' => [399999, DecisionEngine::APPROVE],
             'ровно на пороге' => [400000, DecisionEngine::APPROVE],
             'сразу за порогом' => [400001, DecisionEngine::REVIEW],
+        ];
+    }
+
+    #[DataProvider('ageBoundaries')]
+    public function testRejectsVehicleOlderThanMaxAgeRegardlessOfLtv(int $age, float $ltv, string $expected): void
+    {
+        self::assertSame($expected, $this->engine->decide($age, $ltv));
+    }
+
+    /** @return array<string,array{int,float,string}> */
+    public static function ageBoundaries(): array
+    {
+        return [
+            'ровно на пороге, зелёный LTV' => [20, 30.0, DecisionEngine::APPROVE],
+            'сразу за порогом, зелёный LTV' => [21, 30.0, DecisionEngine::REJECT],
+            'далеко за порогом, зелёный LTV' => [40, 1.0, DecisionEngine::REJECT],
+            'сразу за порогом, серая зона LTV' => [21, 72.0, DecisionEngine::REJECT],
+            'сразу за порогом, идеальный LTV' => [21, 0.0, DecisionEngine::REJECT],
         ];
     }
 }
